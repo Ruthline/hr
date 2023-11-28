@@ -2,9 +2,9 @@
 	// Nombramos la URL de nuestro Servidor (Web/Local)
 	$host="localhost";
 	// Nombramos nuestra BD
-	$db="id21579218_healthy";
+	$db="hr";
 	// Nombramos nuestro USER de la BD
-	$user="id21579218_renewal";
+	$user="root";
 	// Nombramos nuestra CONTRASEÑA del USER BD
-	$pass='Healthyrenewal2*';	
+	$pass='';	
 ?>

@@ -2,7 +2,7 @@
 		//1.2. Crea Clase(POO) que se llamara tal cual el archivo
 class musu{
 		//1.3. métodos/Funciones
-		public function ins_usu($correo,$nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $sexo){
+		public function ins_usu($correo,$nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $perfil_idperfil){
 		//Instanciar la clase/(objeto) conexion en variable $modelo 
 	 	
 			$modelo = new conexion();
@@ -12,7 +12,7 @@ class musu{
 		
 
 	 	//Llamado de mi PROCEDURE almacenado y envio parametros
-	 	$sql = "CALL insert_usu(:emailnew, :nameusernew, :lastnameusernew, :datenacnew, :passnew, :countrynew,'suscrito', :sexnew, NULL, NULL, NULL, NULL, NULL, NULL, 3, 1)";
+	 	$sql = "CALL insert_usu(:emailnew, :nameusernew, :lastnameusernew, :datenacnew, :passnew, :countrynew,'suscrito', 'masculino', NULL, NULL, NULL, NULL, NULL, NULL, perfidnew , 1)";
 
 	 	//Creo variable $result para alistar la consulta con parametros
 	 	$result =$conexion->prepare($sql);
@@ -24,9 +24,9 @@ class musu{
 	 	$result->bindParam(':datenacnew',$fechanac_usuario);
 	 	$result->bindParam(':passnew',$contraseña_usuario);
 	 	$result->bindParam(':countrynew',$pais_usuario);
-		$result->bindParam(':sexnew',$sexo);
+		$result->bindParam(':perfidnew',$perfil_idperfil);
 		//$result->bindParam(':acepto',$acepto);
-		//$result->bindParam(':perfidnew',$perfil_idperfil);
+		//$result->bindParam(':perfperfidnew',$perfil_idperfil);
 		
 	 	//Valido si la variable $result(Esta Vacia)
 	 	if(!$result)
@@ -38,12 +38,20 @@ class musu{
 
 	
 	//1.3.2. Crear función CONSULTA ()
-	public function sel_usu(){
+	public function sel_usu($filtro,$rvini,$rvfin){
 		$resultado = null;
 		$modelo = new conexion();
 		$conexion = $modelo->get_conexion(); 
-		$sql = "SELECT * FROM usuario;";
+		$sql = "SELECT * FROM usuario";
+		if($filtro){
+			$filtro = '%' .$filtro. '%';
+			$sql .= ' WHERE nombre_usuario LIKE :filtro';
+		}
+		$sql .= ' LIMIT '.$rvini.', '.$rvfin.';';
 		$result = $conexion->prepare($sql);
+		if($filtro){
+			$result->bindParam(':filtro', $filtro);
+		}
 		$result->execute();
 		
 		while($f=$result->fetch()){
@@ -52,11 +60,11 @@ class musu{
 		return $resultado;
 	}
 //1.3.3. Crear Funciona ACTUALIZAR()
-	public function upd_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $sexo){
+	public function upd_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $perfil_idperfil){
 		$modelo = new conexion();
 		$conexion = $modelo->get_conexion(); 
 		$sql = "UPDATE usuario SET correo=:emailnew,nombre_usuario=:nameusernew, apellido_usuario=:lastnameusernew, fechanac_usuario=:datenacnew, contraseña_usuario=:passnew,
-		pais_usuario=:countrynew, sexo=:sexnew WHERE correo=:emailnew;";
+		pais_usuario=:countrynew, perfil_idperfil=:perfidnew WHERE correo=:emailnew;";
 		$result = $conexion->prepare($sql);
 		$result->execute();
  
@@ -66,7 +74,7 @@ class musu{
 		$result->bindParam(':datenacnew',$fechanac_usuario);
 		$result->bindParam(':passnew',$contraseña_usuario);
 		$result->bindParam(':countrynew',$pais_usuario);
-	   $result->bindParam(':sexnew',$sexo);
+	   $result->bindParam(':perfidnew',$perfil_idperfil);
 	   
 	   $result = $conexion->prepare($sql);
 	   $result->execute();
@@ -110,7 +118,7 @@ class musu{
 		$resultado1 = NULL;
 		$modelo = new conexion();
 		$conexion = $modelo->get_conexion();
-		$sql = "SELECT correo, nombre_usuario, apellido_usuario, fechanac_usuario, contraseña_usuario, pais_usuario, sexo FROM usuario WHERE correo=:emailnew;";
+		$sql = "SELECT correo, nombre_usuario, apellido_usuario, fechanac_usuario, contraseña_usuario, pais_usuario, perfil_idperfil FROM usuario WHERE correo=:emailnew;";
 		$result = $conexion->prepare($sql);
 		$result->bindParam(':emailnew', $correo);
 		$result->execute();
@@ -119,7 +127,17 @@ class musu{
 		}
 		return $resultado1;
 	}
-	//...
+	
+	//... Crear función para conocer total_registro de la tabla
+	public function selcount($filtro){
+		$sql = 'SELECT COUNT(correo) AS Npe FROM usuario';
+		if($filtro){
+			$filtro = '%'.$filtro.'%';
+			$sql .= ' WHERE nombre_usuario LIKE "'.$filtro.'";';
+		}
+		//Echo sql;
+		return $sql;
+	}
 
 }
 ?>

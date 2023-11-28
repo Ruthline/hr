@@ -2,7 +2,6 @@
     require_once('modelo/mseguridad.php');
     require_once('modelo/conexion.php');
     require_once('modelo/musuario.php');
-    require_once('modelo/musuario.php');
     $musuario = new musuario();
     $rutaFoto = $musuario->obtenerFoto();
 ?>
@@ -98,6 +97,8 @@
                 require_once("vista/vmeanficha.php"); 
             if($pg=="109")
                 require_once("vista/veliminarcuenta.php");
+            if($pg=="110")
+            require_once("vista/vusu.php");
             if($pg=="150") 
                 require_once("vista/vsalir.php"); 
             ?>

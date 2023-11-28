@@ -2,8 +2,21 @@
 //1.2. Incluimos nuestra conexión y modelo 
 	include ("modelo/conexion.php");
 	include ("modelo/musu.php");
+
+	//Incluimos nuetro metodo de paginacion
+	require_once('modelo/mpagina.php');
+	//Facilidad a la hora de direccionar paginación en la que visualizaremos el resultado.(Filtro)
+	$pg = 109;
+	//variable . $arc
+	$arc = "home.php";
+
+
+	
 	//1.3. Instanciamos el modelo a variable php
 	$musu = new musu();
+
+	//Declaracion de variable filtro php que nos servira para paginar
+	$filtro = isset ($_GET['filtro']) ? $_GET['filtro']:NULL;
 
 	//1.3.1. Creamos las Variables PHP para capturar los datos del Formulario
 	// isset() es una función de PHP que devuelve true si la variable o elemento del arreglo existe y tiene un valor distinto de null.
@@ -16,22 +29,11 @@
 	$fechanac_usuario = isset($_POST['fechanac_usuario']) ? $_POST['fechanac_usuario']:NULL;
 	$contraseña_usuario = isset($_POST['contraseña_usuario']) ? $_POST['contraseña_usuario']:NULL;
 	$pais_usuario = isset($_POST['pais_usuario']) ? $_POST['pais_usuario']:NULL;
-	$sexo = isset($_POST['sexo']) ? $_POST['sexo']:5;
-	//$acepto = isset($_POST['acepto']) ? 1 : 0 ;
-	//$subscripcion_usuario = isset($_POST['subscripcion_usuario']) ? $_POST['subscripcion_usuario']:NULL;
-	//$foto_usuario = isset($_POST['foto_usuario']) ? $_POST['foto_usuario']:NULL;
-	//$experiencia = isset($_POST['experiencia']) ? $_POST['experiencia']:NULL;
-	//$certificacion = isset($_POST['certificacion']) ? $_POST['certificacion']:NULL;
-	//$ficha_antropometrica = isset($_POST['ficha_antropometrica']) ? $_POST['ficha_antropometrica']:NULL;
-	//$plan_nutricional = isset($_POST['plan_nutricional']) ? $_POST['plan_nutricional']:NULL;
-	//$prog_actfisica = isset($_POST['prog_actfisica']) ? $_POST['prog_actfisica']:NULL;
-	//$perfil_idperfil = isset($_POST['perfil_idperfil']) ? $_POST['perfil_idperfil']:NULL;
-	//$acepto = isset($_POST['acepto']) ? $_POST['acepto']:NULL;
 	
-		//1.3.1.1. Encriptamos Contraseña
-		$contra = sha1(md5($contraseña_usuario));
-		$contraseña_usuario = $contra;
-		$perfil_idperfil = isset($_POST['perfil_idperfil']) ? $_POST['perfil_idperfil']:NULL;
+	//1.3.1.1. Encriptamos Contraseña
+	$contra = sha1(md5($contraseña_usuario));
+	$contraseña_usuario = $contra;
+	$perfil_idperfil = isset($_POST['perfil_idperfil']) ? $_POST['perfil_idperfil']:NULL;
 
 	//1.3.2. Capturamos la acción (C-U-D) metodo - POST(Form)
 		$opera = isset($_POST['operacion']) ? $_POST['operacion']:NULL;
@@ -44,8 +46,8 @@
 	//1.4.1. Inserción
 	if($opera=="Insertar"){
 		//Validamos si la variables (PHP) estan llenas y las enviamos al nuestro objeto -> método(parámetros)
-		if($correo AND $nombre_usuario AND $apellido_usuario AND $fechanac_usuario AND $contraseña_usuario AND $pais_usuario AND $sexo){
-			$musu->ins_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $sexo);
+		if($correo AND $nombre_usuario AND $apellido_usuario AND $fechanac_usuario AND $contraseña_usuario AND $pais_usuario AND $perfil_idperfil){
+			$musu->ins_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $$perfil_idperfil);
 		}
 
 		$correo ="";
@@ -56,8 +58,8 @@
 	//1.4.2. Actualizar
 	if($opera=="Actualizar"){
 		//Validamos si la var(PHP) estan llenas y las enviamos al nuestro objeto -> metodo(parametros)
-		if($correo AND $nombre_usuario AND $apellido_usuario AND $fechanac_usuario AND $contraseña_usuario AND $pais_usuario AND $sexo){
-			$musu->upd_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $sexo);
+		if($correo AND $nombre_usuario AND $apellido_usuario AND $fechanac_usuario AND $contraseña_usuario AND $pais_usuario AND $perfil_idperfil){
+			$musu->upd_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $perfil_idperfil);
 		}	
 		$correo ="";
 		$opera ="";
@@ -70,8 +72,20 @@
 		$opera ="";	
 		$del ="";
 	}
+
+	//Paginación 
+	$bo = '';
+	//Variable numero de registros a mostrar
+	$nreg = 2;
+	//Crea un objeto [pa] que se instanciara la clase [mpagina.php]
+	$pa = new mpagina();
+	$preg = $pa->mpagin($nreg);
+	
+	//Variable de cant_num_registros
+	$conp = $musu->selcount($filtro);
+
 	/*1.5. Creamos la función de nuestra vista (HTML) que se cargara en (vtab.php)*/
-function form_registro($correo){
+	function form_registro($correo){
 		//Llamamos nuestra modelo (Objeto) e instacionamos 
 	    $musu = new musu();
 	    	//Listamos nuetros perfiles de nuestro Sistemas para seleccionarlos
@@ -141,7 +155,27 @@ function form_registro($correo){
 						$txt .= '</td>';
 					//4ta Fila Cierres
 					$txt .= '</tr>';
+
+					
+
 					//5ta Filas (<tr>)
+					$txt .= '<tr>';
+						//1ra Cabeceras Negrita (<th>)
+						$txt .= '<th align="left">';
+							$txt .= 'Pais';
+						$txt .= '</th>';
+						//2da Cabecera normal (<td>)
+						$txt .= '<td>';
+							$txt .= '<input required class="form-control" type="text" name="pais_usuario" maxlength="50" value="';
+						if ($correo)
+						$txt .= $result1[0]["pais_usuario"];
+						$txt .= '"/>';
+						$txt .= '</td>';
+					//5ta Fila Cierre
+					$txt .= '</tr>';
+
+
+					//6ta Filas (<tr>)
 					$txt .= '<tr>';
 						//1ra Cabeceras Negrita (<th>)
 						$txt .= '<th align="left">';
@@ -154,73 +188,32 @@ function form_registro($correo){
 						$txt .= $result1[0]["contraseña_usuario"];
 						$txt .= '"/>';
 						$txt .= '</td>';
-					//5ta Fila Cierre
-					$txt .= '</tr>';
-
-					//6ta Filas (<tr>)
-					$txt .= '<tr>';
-						//1ra Cabeceras Negrita (<th>)
-						$txt .= '<th align="left">';
-							$txt .= 'Pais usuario';
-						$txt .= '</th>';
-						//2da Cabecera normal (<td>)
-						$txt .= '<td>';
-							$txt .= '<input required class="form-control" type="text" name="pais_usuario" maxlength="50" value="';
-						if ($correo)
-						$txt .= $result1[0]["pais_usuario"];
-						$txt .= '"/>';
-						$txt .= '</td>';
 					//6ta Fila Cierre
 					$txt .= '</tr>';
 
-					//7ta Filas (<tr>)
-					$txt .= '<tr>';
-						//1ra Cabeceras Negrita (<th>)
-						$txt .= '<th align="left">';
-							$txt .= 'sexo';
-						$txt .= '</th>';
-						//2da Cabecera normal (<td>)
-						$txt .= '<td>';
-							$txt .= '<input required class="form-control" type="number" name="sexo" maxlength="50" value="';
-						if ($correo)
-						$txt .= $result1[0]["sexo"];
-						$txt .= '"/>';
-						$txt .= '</td>';
-					//7ta Fila Cierre
-					$txt .= '</tr>';
 
-
-					/*$txt .= '<tr>';
-						$txt .= '<th align="left">';
-							$txt .= 'acepto';
-						$txt .= '</th>';
-						$txt .= '<td>';
-							$txt .= '<input required class="form-control" type="checkbox" name="acepto" value="1"'; // Establece el valor a 1 cuando esté marcado
-						if ($correo && $result1[0]["acepto"] == 1) {
-						$txt .= ' checked'; // Marca el checkbox si la condición se cumple
-						}
-						$txt .= '/>';
-						$txt .= '</td>';
-					$txt .= '</tr>';*/
-
-					/*//16ta Fila Inicio (tr)
+					//7ta Fila Inicio (tr)
 					$txt .= '<tr>';
 					$txt .= '<th align="left">';
 						$txt .= 'Perfil: ';
 						//$txt .= $result[0]["id_perfil"];
 					$txt .= '</th>';
 					$txt .= '<td>';
-						$txt .= '<select class="form-select" name="correo">';
+						$txt .= '<select class="form-select" name="perfil_idperfil">';
 						foreach ($result as $f) {
 							$txt .= '<option value="'.$f['idperfil'].'" ';
-							if($f['idperfil'] and $f['idperfil']==$result1[0]["correo"])
+							if($id_usuario){
+							if($f['idperfil'] and $f['idperfil']==$result1[0]["perfil_idperfil"])
 								$txt .="SELECTED";
 							$txt .= ' >'.$f['nomperf'].'</option>';
 						}
+						$txt .= "SELECTED";
+							$txt .= '>' .$f['nomperf']. '</option>';
+						}
 						$txt .= '</select>';
 					$txt .= '</td>';
-					//16ta Fila Cierre
-					$txt .= '</tr>';*/
+					//7ta Fila Cierretr
+					$txt .= '</tr>';
 
 
 
@@ -244,105 +237,121 @@ function form_registro($correo){
 		//Imprimimos el Formulario(Vista)
 		echo $txt;
 		
-	}	/*1.6. Creamos la función de nuestra vista (HTML) Listar_Registro*/
-function tabla_mostrar(){
+	}	
+	/*1.6. Creamos la función de nuestra vista (HTML) Listar_Registro*/
+	function tabla_mostrar($conp, $nreg, $pg, $bo,$filtro, $arc){
 		$musu = new musu();
-		$result = $musu->sel_usu();
+
+		$pa = new mpagina();
+		//$result = $musu->sel_usu();
 		$txt = '';
-		$txt .= '<div class="table-responsive-md">';
-			$txt .= '<table class="table" width="100%" cellspacing="0px" align="center">';
-				//Inicio de la (Cabecera_Tb)			
-				$txt .= '<tr>';
-					$txt .= '<th>';
-						$txt .= 'CORREO';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Nombre(s)';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Apellido(s)';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Fecha Nacimiento';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Password';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Pais';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Sexo';
-					$txt .= '</th>';
-					$txt .= '<th>';
-						$txt .= 'Terminos';
-					$txt .= '</th>';
-					/*
-					$txt .= '<th>';
-						$txt .= 'Tipo usuario';
-					$txt .= '</th>';
-					*/
-					$txt .= '<th>Actualizar</th>';
-					$txt .= '<th>Eliminar</th>';
-				$txt .= '</tr>';
-				//Cierre de la (Cabecera_Tb)
-				foreach ($result as $f) {
-				//Inicio ROW - Datos de la tabla
-				$txt .= '<tr>';
-					$txt .= '<td align="center">';	
-						$txt .= $f["correo"];
-					$txt .= '</td>';
 
-					$txt .= '<td align="center">';	
-						$txt .= $f["nombre_usuario"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["apellido_usuario"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["fechanac_usuario"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["contraseña_usuario"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["pais_usuario"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["sexo"];
-					$txt .= '</td>';
-
-					$txt .= '<td align="center">';	
-						$txt .= $f["acepto"];
-					$txt .= '</td>';
-					
-					/*
-					$txt .= '<td align="center">';	
-						$txt .= $f["perfil_idperfil"];
-					$txt .= '</td>';
-					*/
+		// Creamos el cuadro de buscar  (filtros-Busquedas)
+		$txt .= '<table class= "table">';
+			//Una fila
+			$txt .= "<tr>";
+				$txt .= "<td>";
+					//1ra columna - Formulario buscar
+					$txt .= "<form name='forfil' method='GET' action='".$arc."'>";
+						$txt .= "<input type='hidden' name='pg' value='".$pg."'/>";
+						//Campo de texto para escribir el dato a buscar
+						$txt .= "Buscar:<input type ='text' name='filtro' value='".$filtro."' placeholder='Nombre del usuario' onChage='this.form.submit();'/>";
+					$txt .="</form>";
+				$txt .= "</td>";
+				//2da Columna control de paginación
+				$txt .= "<td align='right';>";
+					$bo = "<input type='hidden' name='filtro' value='".$filtro."'/>";
+					//Llamamos el metodo de contar la cantidad de paginas
+					$txt .= $pa->spag($conp, $nreg, $pg, $bo, $arc);
+					//Llamar los datos para completar la paginación
+					$result = $musu->sel_usu($filtro,$pa->rvalini(),$pa->rvalfin());
+				$txt .= "</td>";
+			//Cierre Fila
+			$txt .="</tr>";
+		$txt .="</table>";
 
 
 
-					//ICONOS-MOdificar (Boton)
-					$txt .= '<td align="center"><a href="home.php?pg=109&correo='.$f["correo"].'">
-						Actualizar</a></td>';
-					//ICONOS-Eliminar (Boton)
-					$txt .= '<td align="center"><a href="home.php?pg=109&del='.$f["correo"].'">
-						Eliminar</a></td>';
-				//Cierre ROW - Datos de la tabla
-				$txt .= '</tr>';
-				}
-			$txt .= '</table>';
-		$txt .= '</div>';
-		echo $txt;
-		
+
+		if($result){
+			$txt .= '<div class="table-responsive-md">';
+				$txt .= '<table class="table" width="100%" cellspacing="0px" align="center">';
+					//Inicio de la (Cabecera_Tb)			
+					$txt .= '<tr>';
+						$txt .= '<th>';
+							$txt .= 'Correo';
+						$txt .= '</th>';
+						$txt .= '<th>';
+							$txt .= 'Nombre(s)';
+						$txt .= '</th>';
+						$txt .= '<th>';
+							$txt .= 'Apellido(s)';
+						$txt .= '</th>';
+						$txt .= '<th>';
+							$txt .= 'Fecha de Nacimiento';
+						$txt .= '</th>';
+						$txt .= '<th>';
+							$txt .= 'Contraseña';
+						$txt .= '</th>';
+						$txt .= '<th>';
+							$txt .= 'Perfil';
+						$txt .= '</th>';
+						$txt .= '<th>Actualizar</th>';
+						$txt .= '<th>Eliminar</th>';
+					$txt .= '</tr>';
+			
+					//Cierre de la (Cabecera_Tb)
+					foreach ($result as $f) {
+					//Inicio ROW - Datos de la tabla
+					$txt .= '<tr>';
+						$txt .= '<td align="center">';	
+							$txt .= $f["correo"];
+						$txt .= '</td>';
+	
+						$txt .= '<td align="center">';	
+							$txt .= $f["nombre_usuario"];
+						$txt .= '</td>';
+	
+						$txt .= '<td align="center">';	
+							$txt .= $f["apellido_usuario"];
+						$txt .= '</td>';
+	
+						$txt .= '<td align="center">';	
+							$txt .= $f["fechanac_usuario"];
+						$txt .= '</td>';
+	
+						$txt .= '<td align="center">';
+							$txt .= $f["contraseña_usuario"];
+						$txt .= '</td>';
+	
+						$txt .= '<td align="center">';	
+							$txt .= $f["correo"];
+						$txt .= '</td>';
+	
+						//ICONOS-MOdificar (Boton)
+						$txt .= '<td align="center"><a href="home.php?pg=109&correo='.$f["correo"].'">
+							Actualizar</a></td>';
+						//ICONOS-Eliminar (Boton)
+						$txt .= '<td align="center"><a href="home.php?pg=109&del='.$f["correo"].'">
+							Eliminar</a></td>';
+					//Cierre ROW - Datos de la tabla
+					$txt .= '</tr>';
+					}
+				$txt .= '</table>';
+			$txt .= '</div>';
+			}
+	
+			else{
+				$txt .='<div>';
+				$txt .='<h3>No existen datos registrados en la base de datos</h3>';
+				$txt .='</div>';
+			}
+	
+			echo $txt;
+			
 	}
+		
+	
 
 
 
