@@ -1,17 +1,16 @@
 <?php 
 //1.2. Incluimos nuestra conexión y modelo 
-	include ("modelo/conexion.php");
+	require_once ("modelo/conexion.php");
 	include ("modelo/musu.php");
 
 	//Incluimos nuetro metodo de paginacion
 	require_once('modelo/mpagina.php');
 	//Facilidad a la hora de direccionar paginación en la que visualizaremos el resultado.(Filtro)
-	$pg = 109;
+	$pg = 110;
 	//variable . $arc
 	$arc = "home.php";
 
 
-	
 	//1.3. Instanciamos el modelo a variable php
 	$musu = new musu();
 
@@ -47,7 +46,7 @@
 	if($opera=="Insertar"){
 		//Validamos si la variables (PHP) estan llenas y las enviamos al nuestro objeto -> método(parámetros)
 		if($correo AND $nombre_usuario AND $apellido_usuario AND $fechanac_usuario AND $contraseña_usuario AND $pais_usuario AND $perfil_idperfil){
-			$musu->ins_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $$perfil_idperfil);
+			$musu->ins_usu($correo, $nombre_usuario, $apellido_usuario, $fechanac_usuario, $contraseña_usuario, $pais_usuario, $perfil_idperfil);
 		}
 
 		$correo ="";
@@ -202,7 +201,7 @@
 						$txt .= '<select class="form-select" name="perfil_idperfil">';
 						foreach ($result as $f) {
 							$txt .= '<option value="'.$f['idperfil'].'" ';
-							if($id_usuario){
+							if($correo){
 							if($f['idperfil'] and $f['idperfil']==$result1[0]["perfil_idperfil"])
 								$txt .="SELECTED";
 							$txt .= ' >'.$f['nomperf'].'</option>';
@@ -291,6 +290,9 @@
 							$txt .= 'Fecha de Nacimiento';
 						$txt .= '</th>';
 						$txt .= '<th>';
+							$txt .= 'Pais';
+						$txt .= '</th>';
+						$txt .= '<th>';
 							$txt .= 'Contraseña';
 						$txt .= '</th>';
 						$txt .= '<th>';
@@ -319,6 +321,10 @@
 						$txt .= '<td align="center">';	
 							$txt .= $f["fechanac_usuario"];
 						$txt .= '</td>';
+
+						$txt .= '<td align="center">';	
+							$txt .= $f["pais_usuario"];
+						$txt .= '</td>';
 	
 						$txt .= '<td align="center">';
 							$txt .= $f["contraseña_usuario"];
@@ -329,10 +335,10 @@
 						$txt .= '</td>';
 	
 						//ICONOS-MOdificar (Boton)
-						$txt .= '<td align="center"><a href="home.php?pg=109&correo='.$f["correo"].'">
+						$txt .= '<td align="center"><a href="home.php?pg=110&correo='.$f["correo"].'">
 							Actualizar</a></td>';
 						//ICONOS-Eliminar (Boton)
-						$txt .= '<td align="center"><a href="home.php?pg=109&del='.$f["correo"].'">
+						$txt .= '<td align="center"><a href="home.php?pg=110&del='.$f["correo"].'">
 							Eliminar</a></td>';
 					//Cierre ROW - Datos de la tabla
 					$txt .= '</tr>';

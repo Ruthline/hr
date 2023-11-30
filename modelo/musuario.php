@@ -33,7 +33,7 @@
                 $sql = "CALL insert_usu(:correo, :nombre, :apellido, :fechanac, :contrasena, :pais, :sexo, :acepto)";
         
                 $stmt = $this->con->prepare($sql);
-    
+                
                 $stmt->bindParam(':correo', $corrusu);
                 $stmt->bindParam(':nombre', $nomusu);
                 $stmt->bindParam(':apellido', $apeusu);
@@ -176,6 +176,7 @@
                     echo "Cuenta eliminada";
                     session_destroy();
                     header('Location: /hr/index.php');
+                    exit();
                 } else {
                     echo "No fue posible eliminar la cuenta";
                 }

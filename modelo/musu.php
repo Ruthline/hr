@@ -12,10 +12,11 @@ class musu{
 		
 
 	 	//Llamado de mi PROCEDURE almacenado y envio parametros
-	 	$sql = "CALL insert_usu(:emailnew, :nameusernew, :lastnameusernew, :datenacnew, :passnew, :countrynew,'suscrito', 'masculino', NULL, NULL, NULL, NULL, NULL, NULL, perfidnew , 1)";
+	 	$sql = "CALL insert_admon(:emailnew, :nameusernew, :lastnameusernew, :datenacnew, :passnew, :countrynew,'suscrito', 'masculino', NULL, NULL, NULL, NULL, NULL, NULL :perfidnew , 1 )";
 
 	 	//Creo variable $result para alistar la consulta con parametros
 	 	$result =$conexion->prepare($sql);
+		
 
 	 	//Reemplazo los parámetros (PRECEDURE) por los recibidos desde el Controlador(función)
 	 	$result->bindParam(':emailnew',$correo);
@@ -25,8 +26,6 @@ class musu{
 	 	$result->bindParam(':passnew',$contraseña_usuario);
 	 	$result->bindParam(':countrynew',$pais_usuario);
 		$result->bindParam(':perfidnew',$perfil_idperfil);
-		//$result->bindParam(':acepto',$acepto);
-		//$result->bindParam(':perfperfidnew',$perfil_idperfil);
 		
 	 	//Valido si la variable $result(Esta Vacia)
 	 	if(!$result)
@@ -66,7 +65,6 @@ class musu{
 		$sql = "UPDATE usuario SET correo=:emailnew,nombre_usuario=:nameusernew, apellido_usuario=:lastnameusernew, fechanac_usuario=:datenacnew, contraseña_usuario=:passnew,
 		pais_usuario=:countrynew, perfil_idperfil=:perfidnew WHERE correo=:emailnew;";
 		$result = $conexion->prepare($sql);
-		$result->execute();
  
 		$result->bindParam(':emailnew',$correo);
 		$result->bindParam(':nameusernew',$nombre_usuario);
@@ -76,8 +74,6 @@ class musu{
 		$result->bindParam(':countrynew',$pais_usuario);
 	   $result->bindParam(':perfidnew',$perfil_idperfil);
 	   
-	   $result = $conexion->prepare($sql);
-	   $result->execute();
 
 		if(!$result)
 			echo "<script>alert('Error al actualizar');</script>";

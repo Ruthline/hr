@@ -1,6 +1,4 @@
 <?php
-//require_once('modelo/conexion.php');
-//require_once('modelo/musuario.php');
 
 //Variables Registro usuario
 $corrusu = '';
@@ -178,7 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Realizar el registro si todas las validaciones pasan
         $contra = sha1(md5($consusu));
         $musuario->resgistrarUsuario($corrusu, $nomusu, $apeusu, $fecusu, $contra, $paisusu, $sexusu, $termusu);
-        header('Location: ../hr/index.php');
+        header('Location: index.php');
+        exit();
         }
         else {
             $errors[] = "Error en la base de datos";
